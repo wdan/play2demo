@@ -4,7 +4,9 @@
 
 # Home page
 GET     /                           controllers.Application.index
-GET 	/tasks 			    controllers.Application.tasks
+GET     /_get_graph_data            controllers.Application.getData()
+GET     /_get_k_large_data          controllers.Application.getKLargeData(k: Int)
+GET     /_get_single_data           controllers.Application.getSingleData(n: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

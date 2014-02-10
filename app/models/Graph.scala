@@ -20,7 +20,7 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
   def formatedEdges(
     nodes: List[Int] = null,
     highlight: List[Int] = null
-  ): String = {
+  ): JsArray = {
      var jsonEdges = Json.arr()
      for (edge <- this.edges) {
       if (
@@ -39,10 +39,10 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
         jsonEdges = jsonEdges append jsonEdge
       }
     }
-    return jsonEdges.toString()
+    return jsonEdges
   }
 
-  def formatedNodes(highlight: List[Int] = null): String = {
+  def formatedNodes(highlight: List[Int] = null): JsArray = {
     var jsonNodes = Json.arr()
     var secondNodes: List[Int] = null
     if (highlight != null) {
@@ -61,7 +61,7 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
       }
       jsonNodes = jsonNodes append jsonNode
     }
-    return jsonNodes.toString()
+    return jsonNodes
   }
 
   private def findSecondImportantNodes(highlight: List[Int]): List[Int] = {
