@@ -1,0 +1,85 @@
+.node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+
+.common {
+    stroke: #999;
+    stroke-opacity: .5;
+}
+
+.highlight {
+    stroke: #ff3030;
+    stroke-opacity: .8;
+}
+
+svg {
+    margin-left: -50px;
+}
+
+#paint_zone {
+    margin-top: 0px;
+}
+
+#right_column {
+    height: 500px;
+    padding: 0px;
+}
+
+.right-search {
+    padding: 0px;
+}
+.search-zone {
+    margin-left: 20px;
+    padding-left: 0px;
+    margin-right: 0px;
+}
+
+.navbar-header {
+    margin-left: 10px;
+    margin-right: 50px;
+    margin-top: 20px;
+}
+p {
+    width: 80px;
+}
+button {
+    margin-top: 5px;
+}
+
+#original {
+    margin-left: 25px;
+    margin-top: 20px;
+}
+
+text {
+    text-anchor: middle;
+    font-size: 9px;
+    font-weight: lighter;
+    opacity: 0.3;
+}
+.line1, .line2 {
+    stroke-width: 1.5 !important;
+    stroke-opacity: 0.1;
+}
+
+.line1, .circle0, .circle1 {
+    stroke: #2c7bb6;
+    fill: #2c7bb6;
+}
+
+.line2, .circle2, .circle3 {
+    stroke: #2c7bb6;
+    fill: #2c7bb6;
+    /*stroke: #d7191c;*/
+    /*fill: #d7191c;*/
+}
+
+.path {
+    fill: none;
+    stroke: #2c7bb6;
+    /*stroke: black;*/
+    stroke-width: 1.5;
+    /*stroke-opacity: 0.05;*/
+    stroke-opacity: 0.05;
+}

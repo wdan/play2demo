@@ -150,5 +150,4 @@ object Graph{
   def starNode(nodeNum: Int): List[Int] = {
     return List(nodeNum)
   }
-
 }
