@@ -20,7 +20,7 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
   def formatedEdges(
     nodes: List[Int] = null,
     highlight: List[Int] = null
-  ): JsArray = {
+  ): String = {
      var jsonEdges = Json.arr()
      for (edge <- this.edges) {
       if (
@@ -39,28 +39,44 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
         jsonEdges = jsonEdges append jsonEdge
       }
     }
-    return jsonEdges
+    return jsonEdges.toString()
   }
 
-  private def buildAdjacencyMatrix(): Array[Array[Int]] = {
-    val nodesLen = this.nodes.length
-    val matrix = Array.ofDim[Int](nodesLen, nodesLen)
-    for (edge <- this.edges) {
-      matrix(edge.source)(edge.target) = 1
-      matrix(edge.target)(edge.source) = 1
+  def formatedNodes(highlight: List[Int] = null): String = {
+    var jsonNodes = Json.arr()
+    var secondNodes: List[Int] = null
+    if (highlight != null) {
+      secondNodes = this.findSecondImportantNodes(highlight)
     }
-    return matrix
+    for (node <- this.nodes) {
+      var jsonNode = node.toDict()
+      if (highlight == null) {
+        jsonNode = jsonNode ++ Json.obj("highlight" -> 0)
+      } else if (highlight.exists(_ == node.name)) {
+        jsonNode = jsonNode ++ Json.obj("highlight" -> 3)
+      } else if (secondNodes.exists(_ == node.name)) {
+        jsonNode = jsonNode ++ Json.obj("highlight" -> 2)
+      } else {
+        jsonNode = jsonNode ++ Json.obj("highlight" -> 1)
+      }
+      jsonNodes = jsonNodes append jsonNode
+    }
+    return jsonNodes.toString()
   }
 
-  private def calcChildrenNode(
-    subtreeNum: List[Int],
-    children: List[List[Int]],
-    center: Int,
-    now: Int,
-    maxSteps: Int
-  ): Int =  {
-    //TODO
-    return 0
+  private def findSecondImportantNodes(highlight: List[Int]): List[Int] = {
+    val nodes = new HashSet[Int]()
+    for (edge <- this.edges) {
+      if (!(highlight.exists(_ == edge.source) && highlight.exists(_ == edge.target))) {
+        if (highlight.exists(_ == edge.source)) {
+          nodes += edge.source
+        }
+        if (highlight.exists(_ == edge.target)) {
+          nodes += edge.target
+        }
+      }
+    }
+    return nodes.toList
   }
 
   private def getNodesDegreeDict(): HashMap[Int, Int] = {
@@ -87,6 +103,28 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
     def f(x: Int, degree: Int) = if (degree >= k) Some(x) else None
     return nodesDegreeList.flatMap(t => f(t._1, t._2))
   }
+
+  private def buildAdjacencyMatrix(): Array[Array[Int]] = {
+    val nodesLen = this.nodes.length
+    val matrix = Array.ofDim[Int](nodesLen, nodesLen)
+    for (edge <- this.edges) {
+      matrix(edge.source)(edge.target) = 1
+      matrix(edge.target)(edge.source) = 1
+    }
+    return matrix
+  }
+
+  private def calcChildrenNode(
+    subtreeNum: List[Int],
+    children: List[List[Int]],
+    center: Int,
+    now: Int,
+    maxSteps: Int
+  ): Int =  {
+    //TODO
+    return 0
+  }
+
 }
 
 object Graph{
