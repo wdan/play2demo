@@ -6,10 +6,15 @@ import scala.io.Source
 import play.Play
 import play.api.libs.json._
 
-class Graph(val nodes: List[Node], val edges: List[Edge]){
+class Graph(var nodes: List[Node], var edges: List[Edge]){
 
   def this(dataType: String) = {
     this(Graph.initNodes(dataType), Graph.initEdges(dataType))
+  }
+
+  def setData(dataType: String) {
+    this.nodes = Graph.initNodes(dataType)
+    this.edges = Graph.initEdges(dataType)
   }
 
   def formatedEdges(
@@ -37,7 +42,7 @@ class Graph(val nodes: List[Node], val edges: List[Edge]){
     return jsonEdges
   }
 
-  def buildAdjacencyMatrix(): Array[Array[Int]] = {
+  private def buildAdjacencyMatrix(): Array[Array[Int]] = {
     val nodesLen = this.nodes.length
     val matrix = Array.ofDim[Int](nodesLen, nodesLen)
     for (edge <- this.edges) {
@@ -45,6 +50,42 @@ class Graph(val nodes: List[Node], val edges: List[Edge]){
       matrix(edge.target)(edge.source) = 1
     }
     return matrix
+  }
+
+  private def calcChildrenNode(
+    subtreeNum: List[Int],
+    children: List[List[Int]],
+    center: Int,
+    now: Int,
+    maxSteps: Int
+  ): Int =  {
+    //TODO
+    return 0
+  }
+
+  private def getNodesDegreeDict(): HashMap[Int, Int] = {
+    val nodesDict = new HashMap[Int, Int]()
+    for (edge <- this.edges) {
+      if (nodesDict.contains(edge.source)) {
+        nodesDict(edge.source) += 1
+      } else {
+        nodesDict += (edge.source -> 1)
+      }
+      if (nodesDict.contains(edge.target)) {
+        nodesDict(edge.target) += 1
+      } else {
+        nodesDict += (edge.target -> 1)
+      }
+    }
+    return nodesDict
+  }
+
+  def getNodesByDegree(k: Int): List[Int] = {
+    val nodesDict:HashMap[Int, Int] = this.getNodesDegreeDict()
+    var nodesDegreeList = nodesDict.toList
+    nodesDegreeList = nodesDegreeList.sortBy(e => e._2).reverse
+    def f(x: Int, degree: Int) = if (degree >= k) Some(x) else None
+    return nodesDegreeList.flatMap(t => f(t._1, t._2))
   }
 }
 
