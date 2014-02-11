@@ -23,5 +23,5 @@ var visdiv_draging = false;
 var draging_updating_page = {};
 
 set_mouse_event_handler();
-draw_force_directed_graph();
-// radial_hash_demo();
+// draw_force_directed_graph();
+radial_hash_demo();

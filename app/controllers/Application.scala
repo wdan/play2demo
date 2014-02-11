@@ -8,7 +8,7 @@ import models.Graph
 
 object Application extends Controller {
 
-  val graph = new Graph("nothing")
+  val graph = new Graph("facebook")
 
   def index = Action {
     Ok(views.html.index())
@@ -44,6 +44,16 @@ object Application extends Controller {
         "edges" -> edges,
         "nodes" -> nodes
       )
+    Ok(jsonData)
+  }
+
+  def getCentricData(center: Int, max: Int = Int.MaxValue) = Action {
+    val (nodesJson, nodes) = graph.formatedCentricNodes(center, max)
+    val edges = graph.formatedEdges(nodes, null)
+    val jsonData = Json.obj(
+      "edges" -> edges,
+      "nodes" -> nodesJson
+    )
     Ok(jsonData)
   }
 }

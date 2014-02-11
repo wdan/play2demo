@@ -22,6 +22,7 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
     highlight: List[Int] = null
   ): JsArray = {
      var jsonEdges = Json.arr()
+     var cnt = 0
      for (edge <- this.edges) {
       if (
         nodes == null
@@ -37,6 +38,7 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
           jsonEdge = jsonEdge ++ Json.obj("highlight" -> 0)
         }
         jsonEdges = jsonEdges append jsonEdge
+        cnt += 1
       }
     }
     return jsonEdges
@@ -62,6 +64,32 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
       jsonNodes = jsonNodes append jsonNode
     }
     return jsonNodes
+  }
+
+  def formatedCentricNodes(
+    center: Int,
+    maxSteps: Int = Int.MaxValue
+  ): Tuple2[JsArray, List[Int]] = {
+    var jsonNodes = Json.arr()
+    val nodesList = ListBuffer[Int]()
+    val tuple = this.getCenterSteps(center, maxSteps)
+    val steps = tuple._1
+    val subtreeNum = tuple._2
+    val children = tuple._3
+    val degree = this.getDegree()
+    for (i <- 0 until this.nodes.length) {
+      if (steps(i) >= 0 && steps(i) <= maxSteps) {
+        var jsonNode = this.nodes(i).toDict()
+        nodesList.append(this.nodes(i).name)
+        jsonNode = jsonNode ++ Json.obj("step" -> steps(i))
+        jsonNode = jsonNode ++ Json.obj("degree" -> degree(i))
+        jsonNode = jsonNode ++ Json.obj("subtree-num" -> (subtreeNum(i) + 1))
+        jsonNode = jsonNode ++ Json.obj("children" -> children.get(i))
+        jsonNode = jsonNode ++ Json.obj("highlight" -> 0)
+        jsonNodes = jsonNodes append jsonNode
+      }
+    }
+    return (jsonNodes, nodesList.toList)
   }
 
   private def findSecondImportantNodes(highlight: List[Int]): List[Int] = {
@@ -96,6 +124,19 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
     return nodesDict
   }
 
+  def getDegree(): List[Int] = {
+    val nodesDict = this.getNodesDegreeDict()
+    val degree = ListBuffer[Int]()
+    for (node <- this.nodes) {
+      if (nodesDict.contains(node.name)){
+        degree.append(nodesDict.getOrElse(node.name, 0))
+      } else {
+        degree.append(0)
+      }
+    }
+    return degree.toList
+  }
+
   def getNodesByDegree(k: Int): List[Int] = {
     val nodesDict:HashMap[Int, Int] = this.getNodesDegreeDict()
     var nodesDegreeList = nodesDict.toList
@@ -114,17 +155,80 @@ class Graph(var nodes: List[Node], var edges: List[Edge]){
     return matrix
   }
 
-  private def calcChildrenNode(
-    subtreeNum: List[Int],
-    children: List[List[Int]],
+  private def getCenterSteps(
+    center: Int,
+    maxSteps:Int
+  ): Tuple3[List[Int], List[Int], HashMap[Int, List[Int]]] = {
+    val steps: ListBuffer[Int] = new ListBuffer()
+    val matrix = this.buildAdjacencyMatrix()
+    val queue = new Queue[Tuple2[Int, Int]]()
+    queue += Tuple2(center, 0)
+    val used = new HashMap[Int, Int]()
+    used += (center -> 0)
+    val children = new HashMap[Int, ListBuffer[Int]]()
+    while (queue.size != 0) {
+      val (now, step) = queue.dequeue()
+      if (step <= maxSteps) {
+        children += (now -> new ListBuffer[Int]())
+        for (i <- 0 until matrix(now).length) {
+          if (matrix(now)(i) > 0 && (!used.contains(i))) {
+            queue += Tuple2(i, step + 1)
+            used += (i -> (step + 1))
+            val tList = children.getOrElse(now, new ListBuffer[Int]())
+            tList.append(i)
+          }
+        }
+      }
+    }
+    for (node <- this.nodes) {
+      if (used.contains(node.name)) {
+        steps.append(used.getOrElse(node.name, -1))
+      } else {
+        children += (node.name -> new ListBuffer[Int]())
+        steps.append(-1)
+      }
+    }
+    val childrenList = children.map {case (k, v) => (k, v.toList)}
+    val subtreeNum = this.calSubtreeNum(childrenList, center, maxSteps)
+    return (steps.toList, subtreeNum, childrenList)
+  }
+
+  private def calSubtreeNum(
+    children: HashMap[Int, List[Int]],
+    center: Int,
+    maxSteps: Int
+  ): List[Int] = {
+    val subtreeNum = new HashMap[Int, Int]()
+    val res = new ListBuffer[Int]()
+    this.calChildrenNode(subtreeNum, children, center, 0, maxSteps)
+    for (node <- this.nodes) {
+      if (subtreeNum.contains(node.name)) {
+        res.append(subtreeNum.getOrElse(node.name, 0))
+      } else {
+        res.append(0)
+      }
+    }
+    return res.toList
+  }
+
+  private def calChildrenNode(
+    subtreeNum: HashMap[Int, Int],
+    children: HashMap[Int, List[Int]],
     center: Int,
     now: Int,
     maxSteps: Int
-  ): Int =  {
-    //TODO
-    return 0
+  ): Int = {
+    if (now > maxSteps) {
+      return 0
+    }
+    val tList = children.getOrElse(center, List[Int]())
+    var cnt = tList.length
+    for (i <- tList) {
+      cnt += this.calChildrenNode(subtreeNum, children, i, now+1, maxSteps)
+    }
+    subtreeNum += (center -> cnt)
+    return cnt
   }
-
 }
 
 object Graph{

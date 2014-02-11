@@ -7,6 +7,7 @@ GET     /                           controllers.Application.index
 GET     /_get_graph_data            controllers.Application.getData()
 GET     /_get_k_large_data          controllers.Application.getKLargeData(k: Int)
 GET     /_get_single_data           controllers.Application.getSingleData(n: Int)
+GET     /_get_centric_data          controllers.Application.getCentricData(center: Int, max: Int ?= Int.MaxValue)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
